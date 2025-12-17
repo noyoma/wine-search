@@ -1,270 +1,3 @@
-<!doctype html>
-<html lang="ko">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Wine Cellar - Premium Wine Search</title>
-
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: linear-gradient(135deg, #02343F 0%, #01262e 100%);
-  min-height: 100vh;
-  padding: 20px;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-header {
-  text-align: center;
-  color: #F0EDCC;
-  padding: 40px 0 30px;
-}
-
-h1 {
-  font-size: 48px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  letter-spacing: -1px;
-}
-
-.subtitle {
-  font-size: 18px;
-  opacity: 0.9;
-  font-weight: 300;
-}
-
-.search-box {
-  background: #F0EDCC;
-  border-radius: 16px;
-  padding: 12px;
-  box-shadow: 0 20px 60px rgba(2, 52, 63, 0.35);
-  margin-bottom: 30px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.search-icon {
-  width: 24px;
-  height: 24px;
-  opacity: 0.55;
-  margin-left: 8px;
-  color: #02343F;
-}
-
-#q {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 18px;
-  padding: 8px;
-  font-weight: 500;
-  background: transparent;
-  color: #02343F;
-}
-
-#q::placeholder {
-  color: rgba(2, 52, 63, 0.55);
-}
-
-.filter-bar {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.filter-btn {
-  background: rgba(240, 237, 204, 0.15);
-  border: 2px solid rgba(240, 237, 204, 0.4);
-  color: #F0EDCC;
-  padding: 10px 20px;
-  border-radius: 24px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  backdrop-filter: blur(10px);
-}
-
-.filter-btn:hover {
-  background: rgba(240, 237, 204, 0.25);
-  transform: translateY(-2px);
-}
-
-.filter-btn.active {
-  background: #F0EDCC;
-  color: #02343F;
-  border-color: #F0EDCC;
-}
-
-.status {
-  color: #F0EDCC;
-  font-size: 15px;
-  margin-bottom: 16px;
-  font-weight: 600;
-  opacity: 0.95;
-}
-
-.results {
-  display: grid;
-  gap: 16px;
-}
-
-.wine-card {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-}
-
-.wine-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(2, 52, 63, 0.35);
-}
-
-.wine-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-  margin-bottom: 12px;
-  gap: 16px;
-}
-
-.wine-name {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1a1a1a;
-  line-height: 1.3;
-  flex: 1;
-}
-
-.vintage {
-  background: #02343F;
-  color: #F0EDCC;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.wine-korean {
-  font-size: 15px;
-  color: #666;
-  margin-bottom: 14px;
-  font-weight: 600;
-}
-
-.wine-details {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
-}
-
-.badge {
-  background: #F0EDCC;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #02343F;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.badge.type {
-  background: #02343F;
-  color: #F0EDCC;
-}
-
-.badge.country {
-  background: #01262e;
-  color: #F0EDCC;
-}
-
-/* ✅ 구매처 배지 스타일 추가 */
-.badge.store {
-  background: #7C2D12;
-  color: #F0EDCC;
-}
-
-.wine-price {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 14px;
-  border-top: 1px solid #eee;
-}
-
-.price {
-  font-size: 18px;
-  font-weight: 800;
-  color: #02343F;
-}
-
-.stock {
-  font-size: 13px;
-  color: #999;
-}
-
-.loading {
-  text-align: center;
-  color: #F0EDCC;
-  font-size: 18px;
-  padding: 60px 20px;
-}
-
-.empty {
-  text-align: center;
-  color: #F0EDCC;
-  font-size: 16px;
-  padding: 60px 20px;
-  opacity: 0.9;
-}
-
-@media (max-width: 768px) {
-  h1 { font-size: 36px; }
-  .subtitle { font-size: 16px; }
-  .wine-header { flex-direction: column; align-items: start; }
-  .vintage { align-self: start; }
-}
-</style>
-</head>
-
-<body>
-<div class="container">
-  <header>
-    <h1>🍷 Wine Cellar</h1>
-    <p class="subtitle">여마 셀라 와인 검색 플랫폼</p>
-  </header>
-
-  <div class="search-box">
-    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-    </svg>
-    <input id="q" placeholder="와인명, 국가, 품종, 빈티지, 구매처로 검색하세요..." />
-  </div>
-
-  <div class="filter-bar" id="filters"></div>
-
-  <p id="status" class="status"></p>
-  <div id="list" class="results"></div>
-</div>
-
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4tz5D3UVk8qjTburieJq-JmUsTw8k1SE_0poxXHNj9d2rIr2M58GpUC2J8oL77WP_Nl6-0aG1L6ZW/pub?gid=1560122813&single=true&output=csv";
 
@@ -276,7 +9,7 @@ const KEYS = [
   "종류",
   "빈티지",
   "품종",
-  "구매처" // ✅ 구매처 검색키 추가
+  "구매처" // (trim 처리 덕분에 "구매처 "도 "구매처"로 정리됩니다)
 ];
 
 function safe(v) { return v ?? "-"; }
@@ -288,6 +21,25 @@ function formatPrice(price) {
   return new Intl.NumberFormat('ko-KR').format(num) + "원";
 }
 
+// ✅ 여러 후보 컬럼명에서 구매처를 가져오도록(시트 헤더가 달라도 대응)
+function getStore(w) {
+  const candidates = ["구매처", "판매처", "구입처", "shop", "store"];
+  for (const k of candidates) {
+    const v = w[k];
+    if (v && String(v).trim() && v !== "-") return String(v).trim();
+  }
+  return "-";
+}
+
+// ✅ PapaParse가 읽어온 row의 key(헤더)를 trim해서 정규화
+function normalizeRowKeys(row) {
+  const out = {};
+  for (const k in row) {
+    out[String(k).trim()] = row[k];
+  }
+  return out;
+}
+
 let allData = [];
 let currentFilter = "all";
 
@@ -297,7 +49,14 @@ Papa.parse(CSV_URL, {
   download: true,
   header: true,
   complete: function(results) {
-    allData = results.data.filter(r => r["와인명(원문)"] && r["와인명(원문)"].trim());
+    // 1) 헤더 확인 (개발 중에만 켜두세요)
+    console.log("CSV headers:", results.meta.fields);
+    // alert("CSV headers:\n" + results.meta.fields.join("\n"));
+
+    // 2) row key 정규화 + 필터링
+    allData = results.data
+      .map(normalizeRowKeys)
+      .filter(r => r["와인명(원문)"] && r["와인명(원문)"].trim());
 
     // 종류별 필터 생성
     const types = [...new Set(allData.map(w => w["종류"]).filter(Boolean))];
@@ -307,7 +66,6 @@ Papa.parse(CSV_URL, {
     `;
     document.getElementById("filters").innerHTML = filtersHTML;
 
-    // 필터 이벤트
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -352,30 +110,32 @@ function render(items) {
     return;
   }
 
-  list.innerHTML = items.slice(0, 100).map(w => `
-    <div class="wine-card">
-      <div class="wine-header">
-        <div class="wine-name">${safe(w["와인명(원문)"])}</div>
-        ${w["빈티지"] && w["빈티지"] !== "-" ? `<div class="vintage">${safe(w["빈티지"])}</div>` : ''}
-      </div>
+  list.innerHTML = items.slice(0, 100).map(w => {
+    const store = getStore(w);
 
-      ${w["한글 발음"] && w["한글 발음"] !== "-" ? `<div class="wine-korean">${safe(w["한글 발음"])}</div>` : ''}
+    return `
+      <div class="wine-card">
+        <div class="wine-header">
+          <div class="wine-name">${safe(w["와인명(원문)"])}</div>
+          ${w["빈티지"] && w["빈티지"] !== "-" ? `<div class="vintage">${safe(w["빈티지"])}</div>` : ''}
+        </div>
 
-      <div class="wine-details">
-        ${w["종류"] && w["종류"] !== "-" ? `<span class="badge type">${safe(w["종류"])}</span>` : ''}
-        ${w["국가"] && w["국가"] !== "-" ? `<span class="badge country">${safe(w["국가"])}</span>` : ''}
-        ${w["지역"] && w["지역"] !== "-" ? `<span class="badge">${safe(w["지역"])}</span>` : ''}
-        ${w["품종"] && w["품종"] !== "-" ? `<span class="badge">${safe(w["품종"])}</span>` : ''}
-        ${w["구매처"] && w["구매처"] !== "-" ? `<span class="badge store">🛒 ${safe(w["구매처"])}</span>` : ''} <!-- ✅ 구매처 출력 -->
-      </div>
+        ${w["한글 발음"] && w["한글 발음"] !== "-" ? `<div class="wine-korean">${safe(w["한글 발음"])}</div>` : ''}
 
-      <div class="wine-price">
-        <div class="price">${formatPrice(w["원화환산(원/병)"])}</div>
-        ${w["병수"] && w["병수"] !== "-" ? `<div class="stock">재고 ${safe(w["병수"])}병</div>` : ''}
+        <div class="wine-details">
+          ${w["종류"] && w["종류"] !== "-" ? `<span class="badge type">${safe(w["종류"])}</span>` : ''}
+          ${w["국가"] && w["국가"] !== "-" ? `<span class="badge country">${safe(w["국가"])}</span>` : ''}
+          ${w["지역"] && w["지역"] !== "-" ? `<span class="badge">${safe(w["지역"])}</span>` : ''}
+          ${w["품종"] && w["품종"] !== "-" ? `<span class="badge">${safe(w["품종"])}</span>` : ''}
+          ${store !== "-" ? `<span class="badge store">🛒 ${safe(store)}</span>` : ''}
+        </div>
+
+        <div class="wine-price">
+          <div class="price">${formatPrice(w["원화환산(원/병)"])}</div>
+          ${w["병수"] && w["병수"] !== "-" ? `<div class="stock">재고 ${safe(w["병수"])}병</div>` : ''}
+        </div>
       </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 </script>
-</body>
-</html>
