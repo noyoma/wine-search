@@ -13,7 +13,7 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #02343F 0%, #01262e 100%);
   min-height: 100vh;
   padding: 20px;
 }
@@ -25,7 +25,7 @@ body {
 
 header {
   text-align: center;
-  color: white;
+  color: #F0EDCC;
   padding: 40px 0 30px;
 }
 
@@ -43,10 +43,10 @@ h1 {
 }
 
 .search-box {
-  background: white;
+  background: #F0EDCC;
   border-radius: 16px;
   padding: 12px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(2, 52, 63, 0.35);
   margin-bottom: 30px;
   display: flex;
   align-items: center;
@@ -56,8 +56,9 @@ h1 {
 .search-icon {
   width: 24px;
   height: 24px;
-  opacity: 0.5;
+  opacity: 0.55;
   margin-left: 8px;
+  color: #02343F;
 }
 
 #q {
@@ -66,11 +67,13 @@ h1 {
   outline: none;
   font-size: 18px;
   padding: 8px;
-  font-weight: 400;
+  font-weight: 500;
+  background: transparent;
+  color: #02343F;
 }
 
 #q::placeholder {
-  color: #999;
+  color: rgba(2, 52, 63, 0.55);
 }
 
 .filter-bar {
@@ -81,34 +84,34 @@ h1 {
 }
 
 .filter-btn {
-  background: rgba(255,255,255,0.2);
-  border: 2px solid rgba(255,255,255,0.3);
-  color: white;
+  background: rgba(240, 237, 204, 0.15);
+  border: 2px solid rgba(240, 237, 204, 0.4);
+  color: #F0EDCC;
   padding: 10px 20px;
   border-radius: 24px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   backdrop-filter: blur(10px);
 }
 
 .filter-btn:hover {
-  background: rgba(255,255,255,0.3);
+  background: rgba(240, 237, 204, 0.25);
   transform: translateY(-2px);
 }
 
 .filter-btn.active {
-  background: white;
-  color: #667eea;
-  border-color: white;
+  background: #F0EDCC;
+  color: #02343F;
+  border-color: #F0EDCC;
 }
 
 .status {
-  color: white;
+  color: #F0EDCC;
   font-size: 15px;
   margin-bottom: 16px;
-  font-weight: 500;
+  font-weight: 600;
   opacity: 0.95;
 }
 
@@ -128,7 +131,7 @@ h1 {
 
 .wine-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  box-shadow: 0 12px 40px rgba(2, 52, 63, 0.35);
 }
 
 .wine-header {
@@ -148,12 +151,12 @@ h1 {
 }
 
 .vintage {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: #02343F;
+  color: #F0EDCC;
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -161,7 +164,7 @@ h1 {
   font-size: 15px;
   color: #666;
   margin-bottom: 14px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .wine-details {
@@ -172,25 +175,25 @@ h1 {
 }
 
 .badge {
-  background: #f5f5f5;
+  background: #F0EDCC;
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 13px;
-  color: #444;
-  font-weight: 500;
+  color: #02343F;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
 
 .badge.type {
-  background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
-  color: #2d3436;
+  background: #02343F;
+  color: #F0EDCC;
 }
 
 .badge.country {
-  background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
-  color: white;
+  background: #01262e;
+  color: #F0EDCC;
 }
 
 .wine-price {
@@ -203,8 +206,8 @@ h1 {
 
 .price {
   font-size: 18px;
-  font-weight: 700;
-  color: #667eea;
+  font-weight: 800;
+  color: #02343F;
 }
 
 .stock {
@@ -214,14 +217,14 @@ h1 {
 
 .loading {
   text-align: center;
-  color: white;
+  color: #F0EDCC;
   font-size: 18px;
   padding: 60px 20px;
 }
 
 .empty {
   text-align: center;
-  color: white;
+  color: #F0EDCC;
   font-size: 16px;
   padding: 60px 20px;
   opacity: 0.9;
@@ -273,7 +276,9 @@ function safe(v) { return v ?? "-"; }
 
 function formatPrice(price) {
   if (!price || price === "-") return "-";
-  return new Intl.NumberFormat('ko-KR').format(price) + "원";
+  const num = Number(String(price).replace(/,/g, ""));
+  if (Number.isNaN(num)) return String(price);
+  return new Intl.NumberFormat('ko-KR').format(num) + "원";
 }
 
 let allData = [];
