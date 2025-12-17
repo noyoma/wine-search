@@ -1,84 +1,87 @@
-<!doctype html>
-<html lang="ko">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Wine Search</title>
+<!doctype html> 
+<html lang="ko"> 
+<head> 
+<meta charset="utf-8" /> 
+<meta name="viewport" content="width=device-width, initial-scale=1" /> 
+<title>Wine Search</title> 
+ 
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script> 
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script> 
+ 
+<style> 
+  body { font-family: system-ui; max-width: 1000px; margin: 24px auto; padding: 0 12px } 
+  input { width: 100%; padding: 12px; font-size: 16px } 
+  .row { border-bottom: 1px solid #eee; padding: 10px 0 } 
+  .meta { color: #666; font-size: 13px; line-height: 1.45 } 
+  .badge { border: 1px solid #ddd; border-radius: 999px; padding: 2px 8px; margin-right: 6px; font-size: 12px } 
+</style> 
+</head> 
+ 
+<body> 
+<h1>Wine Search</h1> 
+ 
+<input id="q" placeholder="와인명 / 한글 / 국가 / 빈티지 검색" /> 
+<p id="status" class="meta"></p> 
+<div id="list"></div> 
+ 
+<script> 
+// ⬇️ 여기에 '웹에 게시'한 CSV URL 붙여넣기 
+const CSV_URL = https://docs.google.com/spreadsheets/d/e/2PACX-1vS4tz5D3UVk8qjTburieJq-JmUsTw8k1SE_0poxXHNj9d2rIr2M58GpUC2J8oL77WP_Nl6-0aG1L6ZW/pub?gid=1560122813&single=true&output=csv 
+ 
+const KEYS = [ 
+  "와인명(원문)", 
+  "한글 발음", 
+  "국가", 
+  "지역", 
+  "종류", 
+  "빈티지", 
+  "품종" 
+]; 
+ 
+function safe(v){ return v ?? ""; } 
+ 
+Papa.parse(CSV_URL, { 
+  download: true, 
+  header: true, 
+  complete: function(results) { 
+    const data = results.data.filter(r => r["와인명(원문)"]); 
+    const fuse = new Fuse(data, { 
+      keys: KEYS, 
+      threshold: 0.35, 
+      ignoreLocation: true 
+    }); 
+ 
+    const q = document.getElementById("q"); 
+    const list = document.getElementById("list"); 
+    const status = document.getElementById("status"); 
+ 
+    function render(items){ 
+      status.textContent = `결과 ${items.length}개`; 
+      list.innerHTML = items.slice(0, 200).map(w => ` 
+        <div class="row"> 
+          <div><b>${safe(w["와인명(원문)"])}</b> (${safe(w["빈티지"])})</div> 
+          <div class="meta"> 
+            <span class="badge">${safe(w["종류"])}</span> 
+            ${safe(w["한글 발음"])} · ${safe(w["국가"])} · ${safe(w["지역"])} · ${safe(w["품종"])} 
+            <br/> 
+            원화: ${safe(w["원화환산(원/병)"])} / 병수: ${safe(w["병수"])} 
+          </div> 
+        </div> 
+      `).join(""); 
+    } 
+ 
+    render(data); 
+ 
+    q.addEventListener("input", () => { 
+      const term = q.value.trim(); 
+      if (!term) return render(data); 
+      render(fuse.search(term).map(r => r.item)); 
+    }); 
+  } 
+}); 
+</script> 
+</body> 
+</html> 
 
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-<style>
-  body { font-family: system-ui; max-width: 1000px; margin: 24px auto; padding: 0 12px }
-  input { width: 100%; padding: 12px; font-size: 16px }
-  .row { border-bottom: 1px solid #eee; padding: 10px 0 }
-  .meta { color: #666; font-size: 13px; line-height: 1.45 }
-  .badge { border: 1px solid #ddd; border-radius: 999px; padding: 2px 8px; margin-right: 6px; font-size: 12px }
-</style>
-</head>
-
-<body>
-<h1>Wine Search</h1>
-
-<input id="q" placeholder="와인명 / 한글 / 국가 / 빈티지 검색" />
-<p id="status" class="meta"></p>
-<div id="list"></div>
-
-<script>
-// ⬇️ 여기에 '웹에 게시'한 CSV URL 붙여넣기
-const CSV_URL = https://docs.google.com/spreadsheets/d/e/2PACX-1vS4tz5D3UVk8qjTburieJq-JmUsTw8k1SE_0poxXHNj9d2rIr2M58GpUC2J8oL77WP_Nl6-0aG1L6ZW/pub?gid=1560122813&single=true&output=csv
-
-const KEYS = [
-  "와인명(원문)",
-  "한글 발음",
-  "국가",
-  "지역",
-  "종류",
-  "빈티지",
-  "품종"
-];
-
-function safe(v){ return v ?? ""; }
-
-Papa.parse(CSV_URL, {
-  download: true,
-  header: true,
-  complete: function(results) {
-    const data = results.data.filter(r => r["와인명(원문)"]);
-    const fuse = new Fuse(data, {
-      keys: KEYS,
-      threshold: 0.35,
-      ignoreLocation: true
-    });
-
-    const q = document.getElementById("q");
-    const list = document.getElementById("list");
-    const status = document.getElementById("status");
-
-    function render(items){
-      status.textContent = `결과 ${items.length}개`;
-      list.innerHTML = items.slice(0, 200).map(w => `
-        <div class="row">
-          <div><b>${safe(w["와인명(원문)"])}</b> (${safe(w["빈티지"])})</div>
-          <div class="meta">
-            <span class="badge">${safe(w["종류"])}</span>
-            ${safe(w["한글 발음"])} · ${safe(w["국가"])} · ${safe(w["지역"])} · ${safe(w["품종"])}
-            <br/>
-            원화: ${safe(w["원화환산(원/병)"])} / 병수: ${safe(w["병수"])}
-          </div>
-        </div>
-      `).join("");
-    }
-
-    render(data);
-
-    q.addEventListener("input", () => {
-      const term = q.value.trim();
-      if (!term) return render(data);
-      render(fuse.search(term).map(r => r.item));
-    });
-  }
-});
-</script>
-</body>
-</html>
+이코드로 만든 검색 페이지를 그럴싸한 검색 전문 페이지로 다시 코딩, 디자인해줘
